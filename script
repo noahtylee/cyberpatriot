@@ -1,21 +1,24 @@
 @echo off
 
-REM firewall
+REM disable guest
+net user guest /active:no
+
+REM delete users
+set /p "userTest=Enter authorized users: "
+:more_to_process
+	if "%userTest%" == "done" (
+		echo users completed
+	) else (
+		net localgroup Administrators %userTest% /delete
+		set /p "newPass=Enter New Password: "
+		net user %userTest% %newPass%
+		goto :more_to_process
+	)
+
+REM enable firewall
 netsh advfirewall set allprofiles state on
-REM telnet
-DISM /online /disable-feature /featurename:TelnetClient
-DISM /online /disable-feature /featurename:TelnetCServer
-sc stop "TlntSvr"
-sc config "TlntSvr" start=disabled
-REM remote desktop
-sc stop "TermService"
-sc config "TermService" start=disabled
-sc stop "SessionEnv"
-sc config "SessionEnv" start=disabled
-sc stop "UmRdpService"
-sc config "UmRdpService" start=disabled
-sc stop "RemoteRegistry"
-sc config "RemoteRegistry" start=disabled
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 1 /f
+
+REM enable updates
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 4 /f
 
 pause
