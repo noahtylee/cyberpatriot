@@ -5,14 +5,23 @@ net user guest /active:no
 
 REM delete users
 set /p "userTest=Enter authorized users: "
-:more_to_process
+:moreUsers
 	if "%userTest%" == "done" (
 		echo users completed
 	) else (
+		net localgroup Users %userTest% /add
 		net localgroup Administrators %userTest% /delete
-		set /p "newPass=Enter New Password: "
+		set "all_chars=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*90_+[]{}|;:,.<>?`~"
+		set "newPass="
+		for /l %%i in (1, 1, 16) do (
+			set /a "random_index=!random! %% 94"
+			for %%j in (!random_index!) do (
+				set "char=!all_chars!:~%%j,1!"
+				set "password=!password!!char!"
+			)
+		)
 		net user %userTest% %newPass%
-		goto :more_to_process
+		goto :moreUsers
 	)
 
 REM enable firewall
