@@ -3,12 +3,35 @@
 REM disable guest
 net user guest /active:no
 
-REM delete users
-set /p "userTest=Enter authorized users: "
+echo delete users
+set "usersKeep"
+set "count=0"
+:moreDelete
+	set /p "userInput="
+	if "%userInput%" == "done" (
+		echo users deleted
+	) else (
+		set /a "count+=1"
+		set "usersKeep[!count!]=%userInput%"
+		goto :moreDelete
+	)
+for /f "skip=4 tokens=*" %%A in ('net user') do (
+	set "user_info=%%A"
+	for /f "tokens=1 delims= " %%B in ("!user_info!") do (
+		set "user_name=%%A"
+		if /i "!user_name!" neq "%usersKeep%" (
+			net user "!user_name!" /delete
+		)
+	)
+)
+
+echo authorized users
+set /p userTest=
 :moreUsers
 	if "%userTest%" == "done" (
 		echo users completed
 	) else (
+		net user %userTest% /add
 		net localgroup Users %userTest% /add
 		net localgroup Administrators %userTest% /delete
 		set "all_chars=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*90_+[]{}|;:,.<>?`~"
@@ -23,6 +46,35 @@ set /p "userTest=Enter authorized users: "
 		net user %userTest% %newPass%
 		goto :moreUsers
 	)
+
+echo admins
+set /p adminTest=
+:moreAdmins
+	if "%adminTest%" == "done" (
+		echo users completed
+	) else (
+		net user %adminTest% /add
+		net localgroup Users %adminTest% /add
+		net localgroup Administrators %adminTest% /add
+		set "all_chars=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*90_+[]{}|;:,.<>?`~"
+		set "newPass="
+		for /l %%i in (1, 1, 16) do (
+			set /a "random_index=!random! %% 94"
+			for %%j in (!random_index!) do (
+				set "char=!all_chars!:~%%j,1!"
+				set "password=!password!!char!"
+			)
+		)
+		net user %adminTest% %newPass%
+		goto :moreAdmins
+	)
+
+REM password policy
+net accounts /uniquepw:5
+net accounts /maxpwage:90
+net accounts /maxpwage:15
+net accounts /minpwlen:8
+
 
 REM enable firewall
 netsh advfirewall set allprofiles state on
