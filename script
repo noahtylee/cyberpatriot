@@ -1,21 +1,150 @@
 @echo off
 
-REM firewall
-netsh advfirewall set allprofiles state on
-REM telnet
-DISM /online /disable-feature /featurename:TelnetClient
-DISM /online /disable-feature /featurename:TelnetCServer
-sc stop "TlntSvr"
-sc config "TlntSvr" start=disabled
-REM remote desktop
-sc stop "TermService"
-sc config "TermService" start=disabled
-sc stop "SessionEnv"
-sc config "SessionEnv" start=disabled
-sc stop "UmRdpService"
-sc config "UmRdpService" start=disabled
-sc stop "RemoteRegistry"
-sc config "RemoteRegistry" start=disabled
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 1 /f
+REM password policy
+net accounts /uniquepw:5
+net accounts /maxpwage:60
+net accounts /minpwage:10
+net accounts /minpwlen:8
+
+REM lockout policy
+net accounts /lockoutthreshold:5
+
+REM audit policy
+auditpol /set /category:* /success:enable
+auditpol /set /category:* /failure:enable
+
+REM user rights
+set remove=("Backup Operators" "Everyone" "Power Users" "Users" "SERVICE" "NETWORK SERVICE" "LOCAL SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users" "Administrators")
+for %%a in (%remove%) do (
+  ntrights -r SeTrustedCredManAccessPrivilege -u %%a
+  ntrights -r SeTcbPrivilege -u %%a
+  ntrights -r SeCreateTokenPrivilege -u %%a
+  ntrights -r SeCreatePermanentPrivilege -u %%a
+  ntrights -r SeEnableDelegationPrivilege -u %%a
+  ntrights -r SeLockMemoryPrivilege -u %%a
+  ntrights -r SeServiceLogonRight -u %%a
+  ntrights -r SeRelabelPrivilege -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Power Users" "Users" "SERVICE" "NETWORK SERVICE" "LOCAL SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users")
+for %%a in (%remove%) do (
+  ntrights -r SeNetworkLogonRight -u %%a
+  ntrights -r SeBackupPrivilege -u %%a
+  ntrights -r SeCreatePagefilePrivilege -u %%a
+  ntrights -r SeCreateSymbolicLinkPrivilege -u %%a
+  ntrights -r SeDebugPrivilege -u %%a
+  ntrights -r SeRemoteShutdownPrivilege -u %%a
+  ntrights -r SeIncreaseBasePriorityPrivilege -u %%a
+  ntrights -r SeLoadDriverPrivilege -u %%a
+  ntrights -r SeBatchLogonRight -u %%a
+  ntrights -r SeSecurityPrivilege -u %%a
+  ntrights -r SeSystemEnvironmentPrivilege -u %%a
+  ntrights -r SeManageVolumePrivilege -u %%a
+  ntrights -r SeProfileSingleProcessPrivilege -u %%a
+  ntrights -r SeSystemProfilePrivilege -u %%a
+  ntrights -r SeRestorePrivilege -u %%a
+  ntrights -r SeTakeOwnershipPrivilege -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Local account" "Power Users" "Users" "SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users")
+for %%a in (%remove%) do (
+  ntrights -r SeIncreaseQuotaPrivilege -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Power Users" "SERVICE" "NETWORK SERVICE" "LOCAL SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users")
+for %%a in (%remove%) do (
+  ntrights -r SeInteractiveLogonRight -u %%a
+  ntrights -r SeShutdownPrivilege -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Power Users" "Users" "SERVICE" "NETWORK SERVICE" "LOCAL SERVICE" "ANONOYMOUS LOGON" "Guest" "Performance Log Users")
+for %%a in (%remove%) do (
+  ntrights -r SeRemoteInteractiveLogonRight -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Power Users" "Users" "SERVICE" "NETWORK SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users")
+for %%a in (%remove%) do (
+  ntrights -r SeSystemtimePrivilege -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Power Users" "SERVICE" "NETWORK SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users")
+for %%a in (%remove%) do (
+  ntrights -r SeTimeZonePrivilege -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Power Users" "Users" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users")
+for %%a in (%remove%) do (
+  ntrights -r SeCreateGlobalPrivilege -u %%a
+  ntrights -r SeImpersonatePrivilege -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Power Users" "Users" "SERVICE" "NETWORK SERVICE" "LOCAL SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Performance Log Users" "Administrators")
+for %%a in (%remove%) do (
+  ntrights -r SeDenyNetworkLogonRight -u %%a
+  ntrights -r SeDenyBatchLogonRight -u %%a
+  ntrights -r SeDenyServiceLogonRight -u %%a
+  ntrights -r SeDenyInteractiveLogonRight -u %%a
+  ntrights -r SeDenyRemoteInteractiveLogonRight -u %%a
+)
+set remove=("Backup Operators" "Everyone" "Power Users" "Users" "SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users" "Administrators")
+for %%a in (%remove%) do (
+  ntrights -r SeAuditPrivilege -u %%a
+  ntrights -r SeAssignPrimaryTokenPrivilege -u %%a
+)
+
+set add=("Backup Operators" "Everyone" "Power Users" "Users" "SERVICE" "NETWORK SERVICE" "LOCAL SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users" "Administrators")
+for %%a in (%add%) do (
+  ntrights +r SeTrustedCredManAccessPrivilege -u %%a
+)
+set add=("Administrators")
+for %%a in (%add%) do (
+  ntrights +r SeNetworkLogonRight -u %%a
+  ntrights +r SeBackupPrivilege -u %%a
+  ntrights +r SeCreatePagefilePrivilege -u %%a
+  ntrights +r SeCreateSymbolicLinkPrivilege -u %%a
+  ntrights +r SeDebugPrivilege -u %%a
+  ntrights +r SeRemoteShutdownPrivilege -u %%a
+  ntrights +r SeIncreaseBasePriorityPrivilege -u %%a
+  ntrights +r SeLoadDriverPrivilege -u %%a
+  ntrights +r SeBatchLogonRight -u %%a
+  ntrights +r SeSecurityPrivilege -u %%a
+  ntrights +r SeTakeOwnershipPrivilege -u %%a
+  ntrights +r SeRestorePrivilege -u %%a
+  ntrights +r SeSystemProfilePrivilege -u %%a
+  ntrights +r SeProfileSingleProcessPrivilege -u %%a
+  ntrights +r SeManageVolumePrivilege -u %%a
+  ntrights +r SeSystemEnvironmentPrivilege -u %%a
+)
+set add=("NETWORK SERVICE" "LOCAL SERVICE" "Administrators")
+for %%a in (%add%) do (
+  ntrights +r SeIncreaseQuotaPrivilege -u %%a
+)
+set add=("Users" "Administrators")
+for %%a in (%add%) do (
+  ntrights +r SeInteractiveLogonRight -u %%a
+  ntrights +r SeShutdownPrivilege -u %%a
+)
+set add=("Remote Desktop Users" "Administrators")
+for %%a in (%add%) do (
+  ntrights +r SeRemoteInteractiveLogonRight -u %%a
+)
+set add=("LOCAL SERVICE" "Administrators")
+for %%a in (%add%) do (
+  ntrights +r SeSystemtimePrivilege -u %%a
+)
+set add=("Users" "LOCAL SERVICE" "Administrators")
+for %%a in (%add%) do (
+  ntrights +r SeTimeZonePrivilege -u %%a
+)
+set add=("SERVICE" "NETWORK SERVICE" "LOCAL SERVICE" "Administrators")
+for %%a in (%add%) do (
+  ntrights +r SeCreateGlobalPrivilege -u %%a
+  ntrights +r SeImpersonatePrivilege -u %%a
+)
+set add=("Guest")
+for %%a in (%add%) do (
+  ntrights +r SeDenyNetworkLogonRight -u %%a
+  ntrights +r SeDenyBatchLogonRight -u %%a
+  ntrights +r SeDenyServiceLogonRight -u %%a
+  ntrights +r SeDenyInteractiveLogonRight -u %%a
+  ntrights +r SeDenyRemoteInteractiveLogonRight -u %%a
+)
+set add=("NETWORK SERVICE" "LOCAL SERVICE")
+for %%a in (%add%) do (
+  ntrights +r SeAuditPrivilege -u %%a
+  ntrights +r SeAssignPrimaryTokenPrivilege -u %%a
+)
 
 pause
