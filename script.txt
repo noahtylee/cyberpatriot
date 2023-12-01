@@ -84,10 +84,6 @@ for %%a in (%remove%) do (
   ntrights -r SeAssignPrimaryTokenPrivilege -u %%a
 )
 
-set add="Backup Operators" "Everyone" "Power Users" "Users" "SERVICE" "NETWORK SERVICE" "LOCAL SERVICE" "Remote Desktop Users" "ANONOYMOUS LOGON" "Guest" "Performance Log Users" "Administrators"
-for %%a in (%add%) do (
-  ntrights +r SeTrustedCredManAccessPrivilege -u %%a
-)
 set add="Administrators"
 for %%a in (%add%) do (
   ntrights +r SeNetworkLogonRight -u %%a
@@ -146,5 +142,20 @@ for %%a in (%add%) do (
   ntrights +r SeAuditPrivilege -u %%a
   ntrights +r SeAssignPrimaryTokenPrivilege -u %%a
 )
+
+REM enable firewall
+netsh advfirewall set allprofiles state on
+
+REM security options
+net user administrator /active:no
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v NoConnectedUser /t REG_DWORD /d 3 /f
+net user guest /active:no
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v LimitBlankPasswordUse /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v AuditBaseObjects /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v FullPrivilegeAuditing /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v SCENoApplyLegacyAuditPolicy /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v CrashOnAuditFail /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\DCOM" /v MachineAccessRestriction /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\DCOM" /v MachineLaunchRestriction /t REG_DWORD /d 1 /f
 
 pause
