@@ -5,6 +5,14 @@ net accounts /uniquepw:5
 net accounts /maxpwage:60
 net accounts /minpwage:10
 net accounts /minpwlen:8
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "PasswordComplexity" /t REG_DWORD /d 1 /f
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v "StoreLmHash" /t REG_DWORD /d 0 /f
+
+REM enables smartscreen
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\AppHost" /v "EnableWebContentEvaluation" /t REG_DWORD /d 1 /f
+
+REM wifi sense
+reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\wcmsvc\wifinetworkmanager\config" /v "AutoConnectAllowedOEM" /t 	REG_DWORD /d 0 /f
 
 REM lockout policy
 net accounts /lockoutthreshold:5
