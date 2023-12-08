@@ -160,11 +160,11 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\S
 net user guest /active:no
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v LimitBlankPasswordUse /t REG_DWORD /d 1 /f
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v AuditBaseObjects /t REG_DWORD /d 0 /f
-reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\FullPrivilegeAuditing" /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa" /v FullPrivilegeAuditing /t REG_DWORD /d 0 /f
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v SCENoApplyLegacyAuditPolicy /t REG_DWORD /d 1 /f
 reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v CrashOnAuditFail /t REG_DWORD /d 1 /f
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\policies\Microsoft\windows NT\DCOM" /v MachineAccessRestriction /t REG_DWORD /d "O:BAG:BAD:(D;;CCLC;;;WD)(A;;CCDC;;;WD)(A;;CCDC;;;S-1-15-2-1)(A;;CCDC;;;S-1-15-3-1024-2405443489-874036122-4286035555-1823921565-1746547431-2453885448-3625952902-991631256)(A;;CCDCLC;;;S-1-5-32-559)(A;;CCDCLC;;;S-1-5-32-562)(A;;CCDC;;;S-1-5-7)" /f
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\policies\Microsoft\windows NT\DCOM" /v MachineLaunchRestriction /t REG_DWORD /d "D;;CCLCRP;;;WD)(A;;CCDCSW;;;WD)(A;;CCDCSW;;;S-1-15-2-1)(A;;CCDCSW;;;S-1-15-3-1024-2405443489-874036122-4286035555-1823921565-1746547431-2453885448-3625952902-991631256)(A;;CCDCLCSWRP;;;BA)(A;;CCDCLCSWRP;;;S-1-5-32-559)(A;;CCDCLCSWRP;;;S-1-5-32-562)" /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\policies\Microsoft\windows NT\DCOM" /v MachineAccessRestriction /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\policies\Microsoft\windows NT\DCOM" /v MachineLaunchRestriction /t REG_DWORD /d 0 /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v UndockWithoutLogon /t REG_DWORD /d 0 /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AllocateDASD /t REG_SZ /d 2 /f
 reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Print\Providers\LanMan Print Services\Servers\AddPrinterDriver" /t REG_DWORD /d 1 /f
